@@ -13,7 +13,7 @@ import br.edu.ifpb.instagram.repository.UserRepository;
 import br.edu.ifpb.instagram.service.UserService;
 
 @Service
-public class UserServiceImpl implements UserService{
+public class UserServiceImpl implements UserService {
 
     @Autowired
     UserRepository userRepository;
@@ -34,12 +34,12 @@ public class UserServiceImpl implements UserService{
         UserEntity storedUserEntity = userRepository.save(userEntity);
 
         return new UserDto(
-            storedUserEntity.getId(),
-            storedUserEntity.getFullName(),
-            storedUserEntity.getUsername(),
-            storedUserEntity.getEmail(),
-            null,
-            null);
+                storedUserEntity.getId(),
+                storedUserEntity.getFullName(),
+                storedUserEntity.getUsername(),
+                storedUserEntity.getEmail(),
+                null,
+                null);
     }
 
     @Override
@@ -47,22 +47,22 @@ public class UserServiceImpl implements UserService{
 
         UserDto userDtoToSave;
 
-        if(userDto.password() != null && !userDto.password().isEmpty()){
+        if (userDto.password() != null && !userDto.password().isEmpty()) {
             userDtoToSave = new UserDto(
-                userDto.id(),
-                userDto.fullName(),
-                userDto.username(),
-                userDto.email(),
-                null,
-                passwordEncoder.encode(userDto.password()));
+                    userDto.id(),
+                    userDto.fullName(),
+                    userDto.username(),
+                    userDto.email(),
+                    null,
+                    passwordEncoder.encode(userDto.password()));
         } else {
             userDtoToSave = new UserDto(
-                userDto.id(),
-                userDto.fullName(),
-                userDto.username(),
-                userDto.email(),
-                null,
-                null);
+                    userDto.id(),
+                    userDto.fullName(),
+                    userDto.username(),
+                    userDto.email(),
+                    null,
+                    null);
         }
 
         Integer linhasModificadas = userRepository.updatePartialUser(
@@ -70,8 +70,7 @@ public class UserServiceImpl implements UserService{
                 userDtoToSave.email(),
                 userDtoToSave.username(),
                 userDtoToSave.encryptedPassword(),
-                userDtoToSave.id()
-        );
+                userDtoToSave.id());
 
         if (linhasModificadas == 0) {
             throw new RuntimeException("User not found");
@@ -91,12 +90,12 @@ public class UserServiceImpl implements UserService{
         UserEntity userEntity = userRepository.findById(id).orElseThrow(() -> new RuntimeException("User not found"));
 
         return new UserDto(
-            userEntity.getId(),
-            userEntity.getFullName(),
-            userEntity.getUsername(),
-            userEntity.getEmail(),
-            null,
-            userEntity.getEncryptedPassword());
+                userEntity.getId(),
+                userEntity.getFullName(),
+                userEntity.getUsername(),
+                userEntity.getEmail(),
+                null,
+                userEntity.getEncryptedPassword());
     }
 
     @Override
@@ -109,12 +108,12 @@ public class UserServiceImpl implements UserService{
         }
         for (UserEntity userEntity : userEntities) {
             UserDto userDto = new UserDto(
-                userEntity.getId(),
-                userEntity.getFullName(),
-                userEntity.getUsername(),
-                userEntity.getEmail(),
-                null,
-                userEntity.getEncryptedPassword());
+                    userEntity.getId(),
+                    userEntity.getFullName(),
+                    userEntity.getUsername(),
+                    userEntity.getEmail(),
+                    null,
+                    userEntity.getEncryptedPassword());
 
             userDtos.add(userDto);
         }

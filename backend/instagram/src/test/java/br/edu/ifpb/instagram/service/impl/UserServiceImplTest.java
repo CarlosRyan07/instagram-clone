@@ -7,6 +7,7 @@ import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -90,7 +91,7 @@ public class UserServiceImplTest {
         assertEquals("encodedNovaSenha", result.encryptedPassword());
         verify(passwordEncoder, times(1)).encode("novaSenha");
         verify(userRepository, times(1))
-            .updatePartialUser("Maria Silva", "maria@example.com", "marias", "encodedNovaSenha", 1L);
+                .updatePartialUser("Maria Silva", "maria@example.com", "marias", "encodedNovaSenha", 1L);
     }
 
     @Test
@@ -107,9 +108,8 @@ public class UserServiceImplTest {
         });
         assertEquals("User not found", exception.getMessage());
         verify(userRepository, times(1))
-            .updatePartialUser("João Silva", "joao@example.com", "joaos", "encodedSenha123", 1L);
+                .updatePartialUser("João Silva", "joao@example.com", "joaos", "encodedSenha123", 1L);
     }
-
 
     @Test
     void testDeleteUser() {
@@ -205,4 +205,33 @@ public class UserServiceImplTest {
         assertEquals("Users not found", exception.getMessage());
         verify(userRepository, times(1)).findAll();
     }
+
+    @Test
+    void testUpdateUserWithEmptyPassword() {
+        // Senha vazia passada no campo correto
+        UserDto userDtoWithEmptyPassword = new UserDto(1L, "Full Name", "username", "email", "", null);
+
+        when(userRepository.updatePartialUser(anyString(), anyString(), anyString(), any(), anyLong())).thenReturn(1); // Stub
+                                                                                                                       // de
+                                                                                                                       // sucesso
+
+        UserDto updatedUserWithEmptyPassword = userService.updateUser(userDtoWithEmptyPassword); // Executa o método
+        assertNotNull(updatedUserWithEmptyPassword);
+        assertNull(updatedUserWithEmptyPassword.password()); // Verifica se a senha foi tratada corretamente como null
+    }
+
+    @Test
+    void testUpdateUserWithNullPassword() {
+        // Senha nula passada no campo correto
+        UserDto userDtoWithNullPassword = new UserDto(1L, "Full Name", "username", "email", null, null);
+
+        when(userRepository.updatePartialUser(anyString(), anyString(), anyString(), any(), anyLong())).thenReturn(1); // Stub
+                                                                                                                       // de
+                                                                                                                       // sucesso
+
+        UserDto updatedUserWithNullPassword = userService.updateUser(userDtoWithNullPassword); // Executa o método
+        assertNotNull(updatedUserWithNullPassword);
+        assertNull(updatedUserWithNullPassword.password()); // Verifica se a senha foi tratada corretamente como null
+    }
+
 }
