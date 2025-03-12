@@ -1,47 +1,74 @@
 package br.edu.ifpb.instagram.controller;
 
-import org.junit.jupiter.api.Test;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase;
-import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
-import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.http.MediaType;
-import org.springframework.test.web.servlet.MockMvc;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
+import static org.mockito.Mockito.*;
+import static org.junit.jupiter.api.Assertions.*;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
-
+import br.edu.ifpb.instagram.model.dto.UserDto;
 import br.edu.ifpb.instagram.model.request.LoginRequest;
 import br.edu.ifpb.instagram.model.request.UserDetailsRequest;
+import br.edu.ifpb.instagram.model.response.LoginResponse;
+import br.edu.ifpb.instagram.model.response.UserDetailsResponse;
+import br.edu.ifpb.instagram.service.UserService;
+import br.edu.ifpb.instagram.service.impl.AuthServiceImpl;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.InjectMocks;
+import org.mockito.Mock;
+import org.mockito.MockitoAnnotations;
+import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.http.ResponseEntity;
 
+@ExtendWith(MockitoExtension.class)
 @SpringBootTest
-@AutoConfigureMockMvc
-@AutoConfigureTestDatabase(replace = AutoConfigureTestDatabase.Replace.ANY)
-public class AuthControllerTest {
+class AuthControllerTest {
 
-    @Autowired
-    private MockMvc mockMvc;
-    
-    @Autowired
-    private ObjectMapper mapper;
+    @Mock
+    private AuthServiceImpl authService;
 
-    @Test
-    void testSignInCorrectly() throws Exception {
-        
-        UserDetailsRequest user = new UserDetailsRequest(null, "gustavo@123", "1234", "Gustavo Ferreira", "gudalol");
-        mockMvc.perform(post("auth/signup")
-        .contentType(MediaType.APPLICATION_JSON)
-        .content(mapper.writeValueAsString(user)));
-    
-        LoginRequest loginRequest = new LoginRequest("Gudalol", "1234");
-        
-        mockMvc.perform(post("/auth/signin")
-        .contentType(MediaType.APPLICATION_JSON)
-        .content(mapper.writeValueAsString(loginRequest)))
-        .andExpect(status().isOk());
+    @Mock
+    private UserService userService;
 
-        
+    @InjectMocks
+    private AuthController authController;
+
+    @BeforeEach
+    void setUp() {
+        MockitoAnnotations.openMocks(this);
+        authController = new AuthController(authService, userService); // Inicializa manualmente
     }
 
+    @Test
+    void testSignIn() {
+        LoginRequest loginRequest = new LoginRequest("testUser", "password123");
+        String fakeToken = "fake-jwt-token";
+
+        when(authService.authenticate(any(LoginRequest.class))).thenReturn(fakeToken);
+
+        ResponseEntity<LoginResponse> response = authController.signIn(loginRequest);
+
+        assertNotNull(response);
+        assertEquals(200, response.getStatusCodeValue());
+        assertNotNull(response.getBody());
+        assertEquals("testUser", response.getBody().username());
+        assertEquals(fakeToken, response.getBody().token());
+    }
+
+    @Test
+    void testSignUp() {
+        UserDetailsRequest userDetailsRequest = new UserDetailsRequest(null,
+                "Test User", "testUser", "test@example.com", "password123");
+
+        UserDto userDto = new UserDto(1L, "Test User", "testUser", "test@example.com", "password123", null);
+        when(userService.createUser(any(UserDto.class))).thenReturn(userDto);
+
+        UserDetailsResponse response = authController.signUp(userDetailsRequest);
+
+        assertNotNull(response);
+        assertEquals(1L, response.id());
+        assertEquals("Test User", response.fullName());
+        assertEquals("testUser", response.username());
+        assertEquals("test@example.com", response.email());
+    }
 }

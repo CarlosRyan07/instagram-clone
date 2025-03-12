@@ -1,6 +1,5 @@
 package br.edu.ifpb.instagram.repository;
 
-import br.edu.ifpb.instagram.InstagramApplication;
 import br.edu.ifpb.instagram.model.entity.UserEntity;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;

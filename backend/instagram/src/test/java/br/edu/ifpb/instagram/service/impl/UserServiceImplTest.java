@@ -217,7 +217,7 @@ public class UserServiceImplTest {
 
         UserDto updatedUserWithEmptyPassword = userService.updateUser(userDtoWithEmptyPassword); // Executa o método
         assertNotNull(updatedUserWithEmptyPassword);
-        assertNull(updatedUserWithEmptyPassword.password()); // Verifica se a senha foi tratada corretamente como null
+        assertNull(updatedUserWithEmptyPassword.password()); // Verifica se a senha foi tratada corretamente como vazia
     }
 
     @Test
